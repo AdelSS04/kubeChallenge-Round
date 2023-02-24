@@ -7,7 +7,7 @@ export const environment = {
   usersUrl: '/api/Users/',
   produitsUrl: '/api/Produits/',
   baseUrl: '/',
-  apiEndpoint : 'https://localhost:7196'
+  apiEndpoint: 'https://localhost:5028'
 };
 
 /*

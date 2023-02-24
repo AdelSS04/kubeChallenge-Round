@@ -1,0 +1,33 @@
+version: '3.4'
+
+services:
+  calicot.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=api
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/api.pfx
+    ports:
+      - "7196:80"
+      - "5028:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ~/.aspnet/https:/https:ro
+  calicot.webapp:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=webapp
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/webapp.pfx
+      - ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.SpaProxy
+    ports:
+      - "5079:80"
+      - "7067:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ~/.aspnet/https:/https:ro
+  calicot.function:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development

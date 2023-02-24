@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Calicot.Function": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 30316,
+      "useSSL": false
+    }
+  }
+}

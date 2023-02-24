@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  calicot.api:
+    image: ${DOCKER_REGISTRY-}calicotapi
+    build:
+      context: .
+      dockerfile: Calicot.API/Dockerfile
+
+  calicot.webapp:
+    image: ${DOCKER_REGISTRY-}calicotwebapp
+    build:
+      context: .
+      dockerfile: Calicot.WebApp/Dockerfile
+
+  calicot.function:
+    image: ${DOCKER_REGISTRY-}calicotfunction
+    build:
+      context: .
+      dockerfile: Calicot.Function/Dockerfile
+
