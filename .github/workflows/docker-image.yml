@@ -1,0 +1,40 @@
+name: KubeChallenge
+
+on:
+  workflow_dispatch:
+
+env:
+  tag: '$(Build.BuildId)'
+
+jobs:
+  build:
+    name: Build container image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Log into registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build & Push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/adelss04calicotwebapp:latest
+          file: Calicot.WebApp/Dockerfile
+      - name: Build & Push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/adelss04calicotfunction:latest
+          file: Calicot.Function/Dockerfile
+      - name: Build & Push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/adelss04calicotapi:latest
+          file: Calicot.API/Dockerfile
+    

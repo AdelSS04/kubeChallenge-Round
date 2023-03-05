@@ -1,0 +1,8 @@
+applicationName: web-app
+issuerName: letsencrypt-staging
+certName: web-app-cert-staging
+environment: staging
+server: https://acme-staging-v02.api.letsencrypt.org/directory
+certSecretName: web-app-letsencrypt-staging
+issuerSecretName: letsencrypt-staging
+ingressClass: addon-http-application-routing
