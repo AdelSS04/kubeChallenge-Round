@@ -29,7 +29,6 @@ namespace Calicot.API.Controllers
             imagesContainerName = configuration.GetSection("AppSettings:FullImageContainer").Value??"";
             thumbsContainerName = configuration.GetSection("AppSettings:ThumbnailContainer").Value??"";
             cdnBaseUrl = configuration.GetSection("AppSettings:cdnBaseUrl").Value??"";
-
         }
 
         private string GetImageCdnUrl(string fileName, bool tn) {

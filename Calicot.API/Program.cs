@@ -28,6 +28,8 @@ using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.ConfigureAppConfiguration((hostingContext, config) => config.AddKeyPerFile("/mnt/secrets-store", true));
+
 builder.Services.AddEndpointsApiExplorer();
 
 string databaseName = builder.Configuration.GetSection("CosmosDb").GetSection("DatabaseName").Value??"";

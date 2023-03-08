@@ -13,6 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Calicot.Shared", "Calicot.S
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5CFA2A1F-9D04-4C73-ABB0-03936F1831B0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Éléments de solution", "Éléments de solution", "{C7150786-C6D3-44D4-B6C7-BE9B598F089D}"
+	ProjectSection(SolutionItems) = preProject
+		dep.yaml = dep.yaml
+		kv.yaml = kv.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
