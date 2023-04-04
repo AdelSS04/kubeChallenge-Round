@@ -1,0 +1,250 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adelss04-web-app
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adelss04-web-app
+  template:
+    metadata:
+      labels:
+        app: adelss04-web-app
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: adelss04-web-app
+        image: kubechallengeacr.azurecr.io/adelss04calicotwebapp:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /startup
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "adelss04-azurekv"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adelss04-web-app
+  namespace: dev
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: adelss04-web-app
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: adelss04-web-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: adelss04-web-app
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adelss04-web-api
+  namespace: dev
+spec:
+  replicas: 2
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: adelss04-web-api
+  template:
+    metadata:
+      labels:
+        app: adelss04-web-api
+    spec:
+      containers:
+      - name: adelss04-web-api
+        image: kubechallengeacr.azurecr.io/adelss04calicotapi:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: secrets-store-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /startup
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "adelss04-azurekv"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adelss04-web-api
+  namespace: dev
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+  selector:
+    app: adelss04-web-api
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: adelss04-web-api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: adelss04-web-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: adelss04-function
+  namespace: dev
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 1 # how many completed jobs should be kept
+  failedJobsHistoryLimit: 1 # how many failed jobs should be kept
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      parallelism: 1 # How many pods will be instantiated at once.
+      template:
+        metadata:
+          labels:
+            app: adelss04-function
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: adelss04-function
+            image: kubechallengeacr.azurecr.io/adelss04calicotfunction:latest
+            imagePullPolicy: Always
+            env:
+            - name: AzureWebJobsStorage
+              value: DefaultEndpointsProtocol=https;AccountName=stcalicotkubechallenge;AccountKey=PNiBeHqncRaxrmrfGg9WM3Yuqc4McSX/HOjAYVx3Zr/7YFhy/g/nUel0Y63fivxMVkl5P4JhQ1Ay+AStOYEkig==;EndpointSuffix=core.windows.net
+            - name: FUNCTIONS_WORKER_RUNTIME
+              value: dotnet
+            volumeMounts:
+              - name: secrets-store-inline
+                mountPath: "/mnt/secrets-store"
+                readOnly: true
+            livenessProbe:
+              httpGet:
+                path: /healthz
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+            readinessProbe:
+              httpGet:
+                path: /readiness
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 3
+            startupProbe:
+              httpGet:
+                path: /startup
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              timeoutSeconds: 5
+              successThreshold: 1
+              failureThreshold: 30    
+          volumes:
+            - name: secrets-store-inline
+              csi:
+                driver: secrets-store.csi.k8s.io
+                readOnly: true
+                volumeAttributes:
+                  secretProviderClass: "adelss04-azurekv"

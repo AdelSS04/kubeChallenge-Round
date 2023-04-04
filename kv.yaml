@@ -1,0 +1,46 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: adelss04-azurekv
+  namespace: dev
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: "3f876cf2-dfd4-4454-9db4-560e7cabb957"
+    keyvaultName: "kvkubechallenge"
+    objects: |
+      array:
+        - |
+          objectName: CosmosDb-Key
+          objectAlias: CosmosDb:Key
+          objectType: secret
+        - |
+          objectName: CosmosDb-ConnectionString
+          objectAlias: CosmosDb:ConnectionString
+          objectType: secret
+        - |
+          objectName: CalicotImages-Key
+          objectAlias: CalicotImages:Key
+          objectType: secret
+        - |
+          objectName: CalicotImages-ConnectionString
+          objectAlias: CalicotImages:ConnectionString
+          objectType: secret
+        - |
+          objectName: JwtPrivateSigningKey
+          objectType: secret
+        - |
+          objectName: AppSettings-Secret
+          objectAlias: AppSettings:Secret
+          objectType: secret
+        - |
+          objectName: Authentication-Google-ClientSecret
+          objectAlias: Authentication:Google:ClientSecret
+          objectType: secret
+        - |
+          objectName: Authentication-Google-ClientId
+          objectAlias: Authentication:Google:ClientId
+          objectType: secret
+    tenantId: "4dbda3f1-592e-4847-a01c-1671d0cc077f"
